@@ -7,10 +7,11 @@ edition = "2018"
 [dependencies]
 actix = "0.10.0"
 actix-web = "3.3.2"
+actix-web-actors = "3.0.0"
 actix-files = "0.5.0"
 actix-rt = "1.1.1"
 dotenv = "0.15.0"
 
-sqlx = { version = "0.4.2", features = [ "postgres", "runtime-actix-rustls" ] }
+sqlx = { version = "0.4.2", features = [ "sqlite", "runtime-actix-rustls" ] }
 
 shared = { path = "../shared" }

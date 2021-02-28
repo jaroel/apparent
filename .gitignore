@@ -1,3 +1,6 @@
 /target
 /client/pkg
+/client/node_modules
 .vscode
+/wsclient
+/apparent.db*
