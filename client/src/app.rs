@@ -1,124 +1,107 @@
 #![allow(unused_braces)]
+extern crate mogwai;
+extern crate web_sys;
+
 use mogwai::prelude::*;
 
-// mod api;
-// mod components;
-// mod page;
-// mod store;
-// mod widgets;
-
-// use components::{login::Login, nav::Nav, register::Register};
-
-// When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
-// allocator.
-#[cfg(feature = "wee_alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-// pub enum Page {
-//     // Login(Gizmo<Login>),
-// // Register(Gizmo<Register>),
-// }
-
-struct MyStruct {
-    title: String,
+#[derive(Clone)]
+enum CounterIn {
+    Click,
+    Reset,
 }
 
-impl Component for MyStruct {
-    fn update(
-        &mut self,
-        _msg: &AppModel,
-        _tx_view: &Transmitter<AppView>,
-        _sub: &Subscriber<AppModel>,
-    ) {
+#[derive(Clone)]
+enum CounterOut {
+    DrawClicks(i32),
+}
+
+struct Counter {
+    num_clicks: i32,
+}
+
+impl Component for Counter {
+    type ModelMsg = CounterIn;
+    type ViewMsg = CounterOut;
+    type DomNode = HtmlElement;
+
+    fn view(
+        &self,
+        tx: &Transmitter<CounterIn>,
+        rx: &Receiver<CounterOut>,
+    ) -> ViewBuilder<HtmlElement> {
+        builder! {
+            <button on:click=tx.contra_map(|_| CounterIn::Click)>
+            {(
+                "clicks = 0",
+                rx.branch_map(|msg| {
+                    match msg {
+                        CounterOut::DrawClicks(n) => {
+                            format!("clicks = {}", n)
+                        }
+                    }
+                })
+            )}
+            </button>
+        }
     }
 
-    fn view(&self, _: &Transmitter<AppModel>, _rx: &Receiver<AppView>) -> ViewBuilder<HtmlElement> {
-        let title = self.title;
-        builder! {
-            <p>{title}</p>
+    fn update(
+        &mut self,
+        msg: &CounterIn,
+        tx_view: &Transmitter<CounterOut>,
+        _sub: &Subscriber<CounterIn>,
+    ) {
+        match msg {
+            CounterIn::Click => {
+                self.num_clicks += 1;
+                tx_view.send(&CounterOut::DrawClicks(self.num_clicks));
+            }
+            CounterIn::Reset => {
+                self.num_clicks = 0;
+                tx_view.send(&CounterOut::DrawClicks(0));
+            }
         }
     }
 }
 
+#[derive(Clone)]
+pub enum In {
+    Click,
+}
+
+#[derive(Clone)]
+pub enum Out {}
+
 pub struct App {
-    // nav: Gizmo<Nav>,
+    counter: Gizmo<Counter>,
 }
 
 impl Default for App {
-    fn default() -> App {
-        // let nav = Gizmo::from(Nav::default());
-        // App { nav }
-        App {}
+    fn default() -> Self {
+        let counter: Gizmo<Counter> = Gizmo::from(Counter { num_clicks: 0 });
+        App { counter }
     }
-}
-
-#[derive(Clone)]
-pub enum AppModel {}
-
-#[derive(Clone)]
-pub enum AppView {
-    // NewPage { page: View<HtmlElement> },
 }
 
 impl Component for App {
-    type ModelMsg = AppModel;
-    type ViewMsg = AppView;
+    type ModelMsg = In;
+    type ViewMsg = Out;
     type DomNode = HtmlElement;
 
-    // fn bind(&self, sub: &Subscriber<AppModel>) {
-    //     // // bind the nav's output view messages to our input model messages
-    //     // sub.subscribe_filter_map(&self.nav.recv, |msg| {
-    //     //     msg.route()
-    //     //         .map(|r| AppModel::HashChange { route: r.clone() })
-    //     // });
-    // }
-
-    // fn update(&mut self, msg: &AppModel, tx: &Transmitter<AppView>, _sub: &Subscriber<AppModel>) {
-    //     // match msg {
-    //     //     AppModel::HashChange { route } => {
-    //     //         let page = View::from(route);
-    //     //         tx.send(&AppView::NewPage {
-    //     //             page,
-    //     //             route: route.clone(),
-    //     //         })
-    //     //     }
-    //     // }
-    // }
-
-    fn bind(&self, _input_sub: &Subscriber<AppModel>, _output_sub: &Subscriber<AppView>) {}
-
-    fn update(
-        &mut self,
-        _msg: &AppModel,
-        _tx_view: &Transmitter<AppView>,
-        _sub: &Subscriber<AppModel>,
-    ) {
+    fn view(&self, tx: &Transmitter<In>, _rx: &Receiver<Out>) -> ViewBuilder<HtmlElement> {
+        builder! {
+            <div>
+                {self.counter.view_builder()}
+                <button on:click=tx.contra_map(|_| In::Click)>"Click to reset"</button>
+            </div>
+        }
     }
 
-    fn view(&self, _: &Transmitter<AppModel>, _rx: &Receiver<AppView>) -> ViewBuilder<HtmlElement> {
-        builder! {
-            <slot
-            // patch:children=rx.branch_filter_map(|msg| match msg {
-                // AppView::NewPage{ page, .. } => Some(Patch::Replace{ index: 1, value: page.clone() }),
-            // })
-            >
-                // {self.nav.view_builder()}
-
-                // This node gets replaced every time we send a patch from the parent node ^
-                // {ViewBuilder::from(&self.nav.state_ref().current_route)}
-
-                <footer>
-                    <div class="container">
-                        <a href="/" class="logo-font">"conduit"</a>
-                        <span class="attribution">
-                            "An interactive learning project from "
-                            <a href="https://thinkster.io">"Thinkster"</a>". "
-                            "Code & design licensed under MIT."
-                        </span>
-                    </div>
-                </footer>
-            </slot>
+    fn update(&mut self, msg: &In, _tx_view: &Transmitter<Out>, _sub: &Subscriber<In>) {
+        match msg {
+            In::Click => {
+                self.counter.send(&CounterIn::Reset);
+            }
         }
     }
 }
