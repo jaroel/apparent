@@ -22,7 +22,7 @@
 //     let onmessage_callback = Closure::wrap(Box::new(move |e: MessageEvent| {
 //         // Handle difference Text/Binary,...
 //         if let Ok(abuf) = e.data().dyn_into::<js_sys::ArrayBuffer>() {
-//             console_log!("message event, received arraybuffer: {:?}", abuf);
+//             // console_log!("message event, received arraybuffer: {:?}", abuf);
 //             let array = js_sys::Uint8Array::new(&abuf);
 //             let len = array.byte_length() as usize;
 //             console_log!("Arraybuffer received {}bytes: {:?}", len, array.to_vec());

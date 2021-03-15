@@ -1,107 +1,92 @@
-#![allow(unused_braces)]
-extern crate mogwai;
-extern crate web_sys;
+use dominator::{class, clone, events, html, Dom};
+use futures_signals::signal::{Mutable, SignalExt};
+use lazy_static::lazy_static;
+use std::sync::Arc;
 
-use mogwai::prelude::*;
-
-#[derive(Clone)]
-enum CounterIn {
-    Click,
-    Reset,
+pub struct State {
+    counter: Mutable<i32>,
 }
 
-#[derive(Clone)]
-enum CounterOut {
-    DrawClicks(i32),
-}
-
-struct Counter {
-    num_clicks: i32,
-}
-
-impl Component for Counter {
-    type ModelMsg = CounterIn;
-    type ViewMsg = CounterOut;
-    type DomNode = HtmlElement;
-
-    fn view(
-        &self,
-        tx: &Transmitter<CounterIn>,
-        rx: &Receiver<CounterOut>,
-    ) -> ViewBuilder<HtmlElement> {
-        builder! {
-            <button on:click=tx.contra_map(|_| CounterIn::Click)>
-            {(
-                "clicks = 0",
-                rx.branch_map(|msg| {
-                    match msg {
-                        CounterOut::DrawClicks(n) => {
-                            format!("clicks = {}", n)
-                        }
-                    }
-                })
-            )}
-            </button>
-        }
+impl State {
+    pub fn new() -> Arc<Self> {
+        Arc::new(Self {
+            counter: Mutable::new(0),
+        })
     }
 
-    fn update(
-        &mut self,
-        msg: &CounterIn,
-        tx_view: &Transmitter<CounterOut>,
-        _sub: &Subscriber<CounterIn>,
-    ) {
-        match msg {
-            CounterIn::Click => {
-                self.num_clicks += 1;
-                tx_view.send(&CounterOut::DrawClicks(self.num_clicks));
-            }
-            CounterIn::Reset => {
-                self.num_clicks = 0;
-                tx_view.send(&CounterOut::DrawClicks(0));
-            }
+    pub fn render(state: Arc<Self>) -> Dom {
+        // Define CSS styles
+        lazy_static! {
+            static ref ROOT_CLASS: String = class! {
+                .style("display", "inline-block")
+                // .style("background-color", "black")
+                .style("padding", "10px")
+            };
+            static ref TEXT_CLASS: String = class! {
+                .style("color", "white")
+                .style("font-weight", "bold")
+            };
+            static ref BUTTON_CLASS: String = class! {
+                .style("display", "block")
+                .style("width", "100px")
+                .style("margin", "5px")
+            };
         }
-    }
-}
 
-#[derive(Clone)]
-pub enum In {
-    Click,
-}
+        let btn = [
+            "bg-blue-500",
+            "hover:bg-blue-700",
+            "text-white",
+            "font-bold",
+            "py-2",
+            "px-4",
+            "rounded",
+        ];
 
-#[derive(Clone)]
-pub enum Out {}
+        // Create the DOM nodes
+        html!("div", {
+            .class(&*ROOT_CLASS)
 
-pub struct App {
-    counter: Gizmo<Counter>,
-}
+            .children(&mut [
+                html!("div", {
+                    .class(&*TEXT_CLASS)
+                    .text_signal(state.counter.signal().map(|x| format!("Counter: {}", x)))
+                }),
 
-impl Default for App {
-    fn default() -> Self {
-        let counter: Gizmo<Counter> = Gizmo::from(Counter { num_clicks: 0 });
-        App { counter }
-    }
-}
+                html!("div", {
+                    .class("inline-flex")
+                    .children(&mut [
 
-impl Component for App {
-    type ModelMsg = In;
-    type ViewMsg = Out;
-    type DomNode = HtmlElement;
+                        html!("button", {
+                            .class(btn)
+                            .text("Increase")
+                            .event(clone!(state => move |_: events::Click| {
+                                // Increment the counter
+                                state.counter.replace_with(|x| *x + 1);
+                            }))
+                        }),
 
-    fn view(&self, tx: &Transmitter<In>, _rx: &Receiver<Out>) -> ViewBuilder<HtmlElement> {
-        builder! {
-            <div>
-                {self.counter.view_builder()}
-                <button on:click=tx.contra_map(|_| In::Click)>"Click to reset"</button>
-            </div>
-        }
-    }
+                        html!("button", {
+                            .class(btn)
+                            .text("Decrease")
+                            .event(clone!(state => move |_: events::Click| {
+                                // Decrement the counter
+                                state.counter.replace_with(|x| *x - 1);
+                            }))
+                        }),
 
-    fn update(&mut self, msg: &In, _tx_view: &Transmitter<Out>, _sub: &Subscriber<In>) {
-        match msg {
-            In::Click => {
-                self.counter.send(&CounterIn::Reset);
-            }
-        }
+                        html!("button", {
+                            .class(btn)
+                            .text("Reset")
+                            .event(clone!(state => move |_: events::Click| {
+                                // Reset the counter to 0
+                                state.counter.set_neq(0);
+                            }))
+                        }),
+
+                    ])
+                }),
+            ])
+        })
     }
 }

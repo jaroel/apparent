@@ -18,7 +18,7 @@ struct Country {
 }
 
 async fn get_country(pool: &SqlitePool) -> Option<Country> {
-    let result = sqlx::query_as!(Country, r#"SELECT COUNT(*) as "count!" FROM countries"#)
+    let result = sqlx::query_as!(Country, r#"SELECT COUNT(*) as "count!" FROM artists"#)
         .fetch_one(pool)
         .await;
     match result {
