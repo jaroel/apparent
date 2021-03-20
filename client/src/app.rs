@@ -1,92 +1,72 @@
-use dominator::{class, clone, events, html, Dom};
-use futures_signals::signal::{Mutable, SignalExt};
-use lazy_static::lazy_static;
-use std::sync::Arc;
+use yew::prelude::*;
 
-pub struct State {
-    counter: Mutable<i32>,
+use crate::counter::Model as Counter;
+use crate::header::Model as Header;
+use crate::nav::Model as Nav;
+use crate::table::Model as Table;
+
+pub struct Model {
+    link: ComponentLink<Self>,
 }
 
-impl State {
-    pub fn new() -> Arc<Self> {
-        Arc::new(Self {
-            counter: Mutable::new(0),
-        })
+pub enum Msg {}
+
+impl Component for Model {
+    type Message = Msg;
+    type Properties = ();
+    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+        Self { link }
     }
 
-    pub fn render(state: Arc<Self>) -> Dom {
-        // Define CSS styles
-        lazy_static! {
-            static ref ROOT_CLASS: String = class! {
-                .style("display", "inline-block")
-                // .style("background-color", "black")
-                .style("padding", "10px")
-            };
-            static ref TEXT_CLASS: String = class! {
-                .style("color", "white")
-                .style("font-weight", "bold")
-            };
-            static ref BUTTON_CLASS: String = class! {
-                .style("display", "block")
-                .style("width", "100px")
-                .style("margin", "5px")
-            };
+    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+        true
+    }
+
+    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
+        false
+    }
+
+    fn view(&self) -> Html {
+        html! {
+            <>
+            <Nav />
+            <Header />
+            <main>
+
+
+            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+
+            <div class="px-4 py-4 sm:px-0">
+              <div class="border-4 border-dashed border-gray-200 rounded-lg">
+
+                <section>
+
+                <Counter />
+                <Counter />
+                <Counter />
+                <Counter />
+
+                </section>
+
+              </div>
+            </div>
+
+          </div>
+
+          <div class="flex flex-col">
+          <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+
+              <Table />
+
+              <Table />
+
+          </div>
+          </div>
+          </div>
+
+            </main>
+            </>
         }
-
-        let btn = [
-            "bg-blue-500",
-            "hover:bg-blue-700",
-            "text-white",
-            "font-bold",
-            "py-2",
-            "px-4",
-            "rounded",
-        ];
-
-        // Create the DOM nodes
-        html!("div", {
-            .class(&*ROOT_CLASS)
-
-            .children(&mut [
-                html!("div", {
-                    .class(&*TEXT_CLASS)
-                    .text_signal(state.counter.signal().map(|x| format!("Counter: {}", x)))
-                }),
-
-                html!("div", {
-                    .class("inline-flex")
-                    .children(&mut [
-
-                        html!("button", {
-                            .class(btn)
-                            .text("Increase")
-                            .event(clone!(state => move |_: events::Click| {
-                                // Increment the counter
-                                state.counter.replace_with(|x| *x + 1);
-                            }))
-                        }),
-
-                        html!("button", {
-                            .class(btn)
-                            .text("Decrease")
-                            .event(clone!(state => move |_: events::Click| {
-                                // Decrement the counter
-                                state.counter.replace_with(|x| *x - 1);
-                            }))
-                        }),
-
-                        html!("button", {
-                            .class(btn)
-                            .text("Reset")
-                            .event(clone!(state => move |_: events::Click| {
-                                // Reset the counter to 0
-                                state.counter.set_neq(0);
-                            }))
-                        }),
-
-                    ])
-                }),
-            ])
-        })
     }
 }

@@ -1,15 +1,16 @@
+#![recursion_limit = "512"]
+
 mod app;
-
-use crate::app::State;
+mod counter;
+mod header;
+mod nav;
+mod table;
 use wasm_bindgen::prelude::*;
+use yew::prelude::*;
 
-#[wasm_bindgen]
-pub fn main_js(parent_id: String) -> Result<(), JsValue> {
-    #[cfg(debug_assertions)]
-    console_error_panic_hook::set_once();
+use crate::app::Model;
 
-    let state = State::new();
-    dominator::append_dom(&dominator::get_id(&parent_id), State::render(state));
-
-    Ok(())
+#[wasm_bindgen(start)]
+pub fn run_app() {
+    App::<Model>::new().mount_to_body();
 }
