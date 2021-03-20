@@ -47,7 +47,7 @@ async fn non_db() -> WebResult<web::Json<i32>> {
 }
 
 async fn index() -> WebResult<NamedFile> {
-    Ok(NamedFile::open("./client/index.html")?)
+    Ok(NamedFile::open("./client/static/index.html")?)
 }
 
 async fn get_pool() -> SqlitePool {
@@ -70,6 +70,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
+            .route("/", web::get().to(index))
             .service(
                 web::scope("/api/")
                     .service(kekjo)
@@ -78,8 +79,7 @@ async fn main() -> std::io::Result<()> {
             )
             .service(ws_index)
             .service(Files::new("/pkg", "./client/pkg"))
-            .service(Files::new("/static", "./client/static"))
-            .default_service(web::get().to(index))
+            .service(Files::new("/", "./client/static"))
     })
     .bind("127.0.0.1:8000")?
     .run()

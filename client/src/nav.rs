@@ -27,7 +27,7 @@ impl Component for Model {
           <div class="mx-auto px-4 py-2">
             <div class="flex justify-between w-full">
                 <div class="ml-4 flex space-x-2">
-                <img class="h-10" src="/static/dinxperfm-logo.png" alt="DinxperFM" />
+                <img class="h-10" src="/dinxperfm-logo.png" alt="DinxperFM" />
                   <button class="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded h-10 w-10">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
