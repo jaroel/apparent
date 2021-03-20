@@ -30,6 +30,10 @@ description = "Build apparent.css"
 command = "npx"
 args = ["tailwindcss-cli@latest", "build", "./client/apparent.in.css", "-o", "./client/pkg/apparent.css", "-c", "./client/tailwind.config.js"]
 
+[tasks.build_css_production]
+env = { "NODE_ENV" = "production" }
+run_task = "build_css"
+
 [tasks.build_client_release]
 extend = "build_client"
 description = "Build client in release mode"
