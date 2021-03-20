@@ -78,6 +78,7 @@ async fn main() -> std::io::Result<()> {
             )
             .service(ws_index)
             .service(Files::new("/pkg", "./client/pkg"))
+            .service(Files::new("/static", "./client/static"))
             .default_service(web::get().to(index))
     })
     .bind("127.0.0.1:8000")?

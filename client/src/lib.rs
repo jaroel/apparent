@@ -4,6 +4,7 @@ mod app;
 mod counter;
 mod header;
 mod nav;
+mod progressbar;
 mod table;
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;

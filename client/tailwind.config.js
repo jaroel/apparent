@@ -2,7 +2,7 @@
 
 module.exports = {
   purge: {
-    enabled: true,
+    // enabled: true,
     content: [
       // path is relative to where `cargo make build_css` is run.
       './client/src/**/*.rs',

@@ -1,8 +1,8 @@
 use yew::prelude::*;
 
 use crate::counter::Model as Counter;
-use crate::header::Model as Header;
 use crate::nav::Model as Nav;
+use crate::progressbar::Model as Progressbar;
 use crate::table::Model as Table;
 
 pub struct Model {
@@ -29,8 +29,8 @@ impl Component for Model {
     fn view(&self) -> Html {
         html! {
             <>
-            <Nav />
-            <Header />
+        <Nav />
+            <Progressbar />
             <main>
 
 
