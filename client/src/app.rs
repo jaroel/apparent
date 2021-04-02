@@ -3,7 +3,9 @@ use yew::prelude::*;
 use crate::counter::Model as Counter;
 use crate::nav::Model as Nav;
 use crate::progressbar::Model as Progressbar;
+use crate::queue::Model as Queue;
 use crate::table::Model as Table;
+use crate::wsding::Model as WSDing;
 
 pub struct Model {
     link: ComponentLink<Self>,
@@ -28,45 +30,27 @@ impl Component for Model {
 
     fn view(&self) -> Html {
         html! {
-            <>
-        <Nav />
+        <>
+            <Nav />
             <Progressbar />
-            <main>
-
-
-            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-
-            <div class="px-4 py-4 sm:px-0">
-              <div class="border-4 border-dashed border-gray-200 rounded-lg">
-
+            <main class="grid grid-cols-2">
+            <div>
+                <Queue />
                 <section>
-
-                <Counter />
-                <Counter />
-                <Counter />
-                <Counter />
-
+                    <Counter />
+                    <Counter />
+                    <Counter />
+                    <Counter />
                 </section>
-
-              </div>
+                <Table />
+            </div>
+            <div>
+                <Table />
+                <WSDing />
             </div>
 
-          </div>
-
-          <div class="flex flex-col">
-          <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-
-              <Table />
-
-              <Table />
-
-          </div>
-          </div>
-          </div>
-
             </main>
-            </>
-        }
+        </>
+                }
     }
 }
